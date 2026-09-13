@@ -1,0 +1,36 @@
+# 日志与临时产物
+*.log
+*.out
+*.tmp
+
+# 备份文件（改动前的快照不应入库）
+*.bak
+*.bak-*
+*.orig
+*.rej
+
+# 测量产物 / 中间结果
+results/
+raw/
+logs/
+*.jsonl
+*.jsonl.zstd
+
+# 密钥与本地配置（绝不入库）
+*.key
+*.pem
+config.local.*
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
