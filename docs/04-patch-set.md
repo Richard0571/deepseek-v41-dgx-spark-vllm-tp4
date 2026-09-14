@@ -29,7 +29,7 @@
 | **`MiaAI-Lab`** | NCCL 连接缓冲与显存分配器相关的实测结论（见 [`docs/06`](06-launch-parameters.md)） |
 | 上游预构建镜像（示例） | `aidendle94/sparkrun-vllm-dsv41-gb10:production-1.0` |
 
-**本指南只解释「为什么需要这些补丁」，不复制补丁内容。**
+**2026-09-14 起**：本仓库 [`patch/`](../patch/) 已包含七个补丁与 `mounts.txt`，可直接拷到四台 `<PATCH_DIR>`。仍建议与 [Tony 上游](https://github.com/tonyd2wild/DeepSeek-V4.1-Flash-vLLM-DGX-Spark) md5 表互核。
 
 ---
 

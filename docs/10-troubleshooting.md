@@ -8,6 +8,9 @@
 
 | # | 坑 | 一句话判据 |
 |---|---|---|
+| 0 | **未打 Engram 补丁仍起 TP4** | ping 通 + SSH banner 超时（**wedge**）；每 rank 118.81 GiB > ~114 GiB |
+| 0b | **PATCH_DIR 只放 head** | worker `not a directory` 或空挂载 |
+| 0c | **PATCH_DIR 路径错** | `patches/dsv41-boot10` 不存在 ⇒ worker 挂载失败 |
 | 1 | 预检清单把 manifest 自己钉了 md5 | 加补丁 ⇒ `patch md5 7/8` ⇒ 拒绝起服 |
 | 2 | 续行命令里插了注释 | 报两个莫名其妙的错，且 `bash -n` **抓不到** |
 | 3 | `--dry-run` 打印明文密钥 | dry-run 输出里带凭据值 |
@@ -18,6 +21,30 @@
 | 8 | 在模型目录上递归扫描 | `anon` 平、`cached` 大幅摆动、读盘几百 MB/s |
 | 9 | 性能对照陷阱 | 跨 boot 直比 / 单点采样 / 单样本 |
 | 10 | 补丁重建 ≠ 生效 | `sha256` 不一致，或最小请求 500 |
+
+---
+
+## 0 · 未打 Engram 补丁仍起 TP4（2026-09-14 wedge）
+
+**现象**：spark-03 在权重加载期 wedge —— ping 通、TCP 22 接受、**SSH banner 永不完成**。约 7 分钟后 watchdog reset，未需物理断电。
+
+**根因**：每 rank `475.25 GiB ÷ 4 = 118.81 GiB`（C），大于每台可用约 **114 GiB**。仍起服并指望 `docker --memory 112g` 兜底 —— **GB10 统一内存上 nvidia 驱动代持页不计入 cgroup，cap 拦不住**。
+
+**修法**：
+
+1. `DSV41_ENGRAM_DISK=1` + 七个补丁四台齐（本仓库 `patch/`）。
+2. 算出装不下就**不要起**。
+3. 起服脚本 `[0/4] guard check`：哨兵不在岗 `exit 3`。
+
+**教训**：哨兵按 ABS 1024 开火追不上 reclaim thrash；正确修法是砍内存需求（Engram-on-disk），不是放宽阈值。
+
+---
+
+## 0b · 补丁必须四台都有
+
+只 scp 到 head ⇒ worker `docker run` 时 `-v` 源不存在，docker 创建空目录 ⇒ 服务缺 rank。
+
+**修法**：`patch/` 拷到四台同一路径（如 `/home/cq/v41patch/`）。
 
 ---
 
